@@ -2,7 +2,6 @@ pipeline {
     agent any
 
     parameters {
-       
         choice(
             name: 'ENVIRONMENT', 
             choices: ['dev', 'staging', 'prod'], 
@@ -20,11 +19,9 @@ pipeline {
         stage('Build') {
             steps {
                 echo "Performing compile check on app.py..."
-             
+                // Properly escaped parentheses using carets (^) for Windows Batch
                 bat '''
-                    if not exist app.py (
-                        echo print("Testing pipeline execution") > app.py
-                    )
+                    if not exist app.py echo print^("Testing pipeline execution"^) > app.py
                     python -m py_compile app.py
                 '''
             }
@@ -32,7 +29,6 @@ pipeline {
 
         stage('Deploy') {
             steps {
-          
                 input message: "Approve deployment to ${params.ENVIRONMENT}?", ok: "Go"
                 
                 echo "Deploying to ${params.ENVIRONMENT}..."
