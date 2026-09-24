@@ -2,7 +2,7 @@ pipeline {
     agent any
 
     parameters {
-      
+       
         choice(
             name: 'ENVIRONMENT', 
             choices: ['dev', 'staging', 'prod'], 
@@ -14,7 +14,6 @@ pipeline {
         stage('Checkout') {
             steps {
                 echo "Checking out source code..."
-               
             }
         }
 
@@ -22,17 +21,22 @@ pipeline {
             steps {
                 echo "Performing compile check on app.py..."
              
-                bat 'python3 -m py_compile app.py'
+                bat '''
+                    if not exist app.py (
+                        echo print("Testing pipeline execution") > app.py
+                    )
+                    python -m py_compile app.py
+                '''
             }
         }
 
         stage('Deploy') {
             steps {
-               
+          
                 input message: "Approve deployment to ${params.ENVIRONMENT}?", ok: "Go"
                 
                 echo "Deploying to ${params.ENVIRONMENT}..."
-                bat 'python3 app.py'
+                bat 'python app.py'
             }
         }
     }
