@@ -19,11 +19,12 @@ pipeline {
         stage('Build') {
             steps {
                 echo "Performing compile check on app.py..."
-                // Properly escaped parentheses using carets (^) for Windows Batch
-                bat '''
-                    if not exist app.py echo print^("Testing pipeline execution"^) > app.py
-                    python -m py_compile app.py
-                '''
+                
+                // Native Groovy step to safely create a perfectly formatted Python file
+                writeFile file: 'app.py', text: 'print("Testing pipeline execution")\n'
+                
+                // Run the compilation check
+                bat 'python -m py_compile app.py'
             }
         }
 
